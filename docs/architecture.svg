@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">AI Secure Gateway：材料读取主流程</title>
+  <desc id="desc">用户请求经过后端身份与限流检查，模型只提出工具调用。后端重新验证会话后，由网关检查权限。允许时读取密文并解密，拒绝时跳过正文读取。写入审计后交付结果。模型不接收正文。</desc>
+  <defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#56716a" stroke-width="1.5"/></marker></defs>
+  <style>
+    text{font-family:'Microsoft YaHei','Noto Sans CJK SC',sans-serif;fill:#19313b}
+    .title{font-size:30px;font-weight:700}.subtitle{font-size:16px;fill:#52676c}
+    .heading{font-size:20px;font-weight:700}.body{font-size:16px}.small{font-size:14px;fill:#52676c}
+    .card{fill:#fff;stroke:#cbd8d1;stroke-width:1.5}.line{fill:none;stroke:#56716a;stroke-width:2;marker-end:url(#arrow)}
+  </style>
+  <rect width="1200" height="720" fill="#f5f7f2"/>
+  <text x="40" y="52" class="title">AI Secure Gateway</text>
+  <text x="40" y="84" class="subtitle">材料读取主流程 · 身份不由消息声明，权限不由模型决定</text>
+
+  <rect x="40" y="135" width="220" height="130" rx="14" class="card"/>
+  <text x="60" y="168" class="heading">01 用户 / 浏览器</text>
+  <text x="60" y="200" class="body">携带登录凭证发送消息</text>
+  <text x="60" y="227" class="small">例：读取材料 2</text>
+  <path d="M260 200 H330" class="line"/>
+
+  <rect x="340" y="135" width="220" height="130" rx="14" class="card"/>
+  <text x="360" y="168" class="heading">02 后端入口检查</text>
+  <text x="360" y="200" class="body">验证会话、来源和参数</text>
+  <text x="360" y="227" class="small">绑定身份 · 检查调用限制</text>
+  <path d="M560 200 H630" class="line"/>
+
+  <rect x="640" y="135" width="220" height="130" rx="14" fill="#fff4e7" stroke="#d9b891" stroke-width="1.5"/>
+  <text x="660" y="168" class="heading">03 DeepSeek</text>
+  <text x="660" y="200" class="body">只提出工具名和参数</text>
+  <text x="660" y="227" class="small">外部模型 · 输出不可信</text>
+  <path d="M860 200 H930" class="line"/>
+
+  <rect x="940" y="135" width="220" height="130" rx="14" class="card"/>
+  <text x="960" y="168" class="heading">04 后端复验</text>
+  <text x="960" y="200" class="body">校验提议格式</text>
+  <text x="960" y="227" class="small">重查原会话有效性与归属</text>
+  <path d="M1050 265 V350" class="line"/>
+  <text x="1070" y="311" class="small">通过</text>
+
+  <rect x="940" y="360" width="220" height="130" rx="14" fill="#e5f0e8" stroke="#176650" stroke-width="2"/>
+  <text x="960" y="393" class="heading">05 安全网关</text>
+  <text x="960" y="425" class="body">工具允许清单与参数检查</text>
+  <text x="960" y="452" class="small">真实角色 + 材料归属 / 分配</text>
+  <path d="M940 425 H870" class="line"/>
+  <text x="871" y="408" class="small">ALLOW</text>
+
+  <rect x="640" y="360" width="220" height="130" rx="14" class="card"/>
+  <text x="660" y="393" class="heading">06 授权后读取</text>
+  <text x="660" y="425" class="body">SQLite 密文 → 后端解密</text>
+  <text x="660" y="452" class="small">AES-256-GCM 完整性校验</text>
+  <path d="M640 425 H570" class="line"/>
+
+  <rect x="340" y="360" width="220" height="130" rx="14" class="card"/>
+  <text x="360" y="393" class="heading">07 写入审计</text>
+  <text x="360" y="425" class="body">身份 · 目标 · 决定 · 编号</text>
+  <text x="360" y="452" class="small">写入失败，不交付工具结果</text>
+  <path d="M340 425 H270" class="line"/>
+
+  <rect x="40" y="360" width="220" height="130" rx="14" class="card"/>
+  <text x="60" y="393" class="heading">08 返回网页</text>
+  <text x="60" y="425" class="body">允许：正文 / 拒绝：说明</text>
+  <text x="60" y="452" class="small">结果由后端组织，不再问模型</text>
+
+  <path d="M1050 490 V548 H450 V500" class="line" stroke-dasharray="6 5"/>
+  <text x="660" y="535" class="body">DENY：跳过密文读取和解密</text>
+  <line x1="40" y1="585" x2="1160" y2="585" stroke="#cbd8d1"/>
+  <text x="40" y="615" class="body">数据边界：模型只收到当前消息与工具定义；服务器会话、材料正文和数据加密密钥不发送给模型。</text>
+  <text x="40" y="645" class="small">部署边界：网关是同一后端进程中的模块；图中仅 DeepSeek 为外部服务，默认模拟模式无需外部模型。</text>
+  <text x="40" y="675" class="small">图示省略提前拒绝与异常分支：身份 / 参数 / 限流失败不调用模型；无工具提议不进入网关。细节见配套说明。</text>
+  <text x="40" y="703" class="small">本机虚构数据演示 · 2026-09-09 · 不代表防御所有提示注入或所有并发撤销情况</text>
+</svg>

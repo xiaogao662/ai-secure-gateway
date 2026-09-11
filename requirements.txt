@@ -1,0 +1,5 @@
+fastapi==0.141.1
+uvicorn==0.52.4
+SQLAlchemy==2.0.52
+argon2-cffi==25.1.0
+cryptography==50.0.1
