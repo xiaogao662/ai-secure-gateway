@@ -1,6 +1,7 @@
 .venv/
 .secrets/
 .acl-backups/
+docs/private-notes/
 .idea/
 .vscode/
 .codex/

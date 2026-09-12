@@ -16,6 +16,8 @@ def test_candidate_list_excludes_private_and_personal_directories(tmp_path):
         (tmp_path / name).mkdir()
         (tmp_path / name / "do-not-read.txt").touch()
     (tmp_path / "app" / "safe.py").touch()
+    (tmp_path / "docs" / "private-notes").mkdir()
+    (tmp_path / "docs" / "private-notes" / "README.original.md").touch()
     files, findings = candidates(tmp_path)
     assert not findings
     assert {p.relative_to(tmp_path).as_posix() for p in files} == {*ROOT_FILES, "app/safe.py"}

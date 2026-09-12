@@ -24,3 +24,38 @@ textarea{min-height:155px;font-size:13px;line-height:1.8;background:#f8fafc;bord
 @media(max-width:1100px){.main-column{display:block}.composer{margin-bottom:12px}#notice{margin-bottom:18px}.result-grid{grid-template-columns:1fr 1fr}.result-card{min-height:190px}.send-row{flex-wrap:nowrap}.send-row .primary{width:auto;min-width:120px}textarea{min-height:100px}.audit-panel{margin-top:20px}.mode-box{max-width:310px}.intro h1{font-size:24px}}
 @media(max-width:660px){.topbar{height:64px;padding:0 16px}.topmeta{font-size:0}.topmeta a{font-size:11px;padding:4px 7px}.brand{font-size:14px}.mark{width:36px;height:36px}main{padding:20px 16px 0}.intro{margin-bottom:18px}.intro h1{font-size:27px}.mode-box{max-width:none;margin-top:14px;padding:10px 13px}.workspace{grid-template-columns:1fr;gap:16px}.account{padding:16px;position:static}.account .identity{margin:12px 0}.account-actions{max-width:280px}.note{display:block}.boundary{display:none}.composer{padding:17px}.result-grid{grid-template-columns:1fr}.result-card{min-height:0;padding:17px}.result-card pre{margin-bottom:0}.result-heading{height:auto}.flow{font-size:10px}.answer-card{padding:17px}.send-row{flex-wrap:wrap}.send-row .primary{width:100%}#answer{max-height:none}footer{margin-top:20px;font-size:10px}}
 @media(prefers-reduced-motion:reduce){button{transition:none}}
+
+/* Evidence-first hierarchy: keep identity / request / result columns. */
+#language-toggle{font-size:12px;padding:5px 9px;white-space:nowrap}
+html[lang=en] .intro h1{font-size:25px;max-width:620px}
+html[lang=en] .account-actions{flex-wrap:wrap}
+html[lang=en] .decision-card #decision{font-size:28px;overflow-wrap:anywhere}
+html[lang=en] .mode-box{max-width:370px}
+html[lang=en] .send-row .subtle{font-size:11px}
+@media(max-width:660px){.topmeta{gap:6px}.topmeta .local-label,.topmeta .local-dot{display:none}.topmeta a{margin-left:0}html[lang=en] .mode-box{max-width:none}html[lang=en] .intro h1{font-size:26px}}
+.intro h1{font-size:26px}.lead{font-size:12px}.panel{box-shadow:none}
+.section-head h2{font-size:15px}.identity strong{font-size:22px}
+.result-area .result-grid{grid-template-columns:minmax(0,1fr);gap:10px}
+.result-area .result-card{min-height:0;padding:20px 22px}
+.result-area .decision-card{background:#fff;border:1px solid #d8e2e8;border-left:5px solid #9babb9;color:var(--ink)}
+.result-area .decision-card .eyebrow{color:#526777;letter-spacing:1.5px;font-size:10px}
+.decision-card .decision-head{margin-top:10px}
+.decision-card #decision{font-size:32px;font-weight:750;line-height:1.2;letter-spacing:1px;padding:0;background:transparent;border:0;border-radius:0;color:#536778}
+.decision-card:has(.badge.allow){background:#f0f9f5;border-color:#b9dccc;border-left-color:#146d52}
+.decision-card:has(.badge.deny){background:#fff4f3;border-color:#e8c5c4;border-left-color:#b23f44}
+.decision-card #decision.allow{color:#116344}.decision-card #decision.deny{color:#a72e39}
+.decision-card:has(.badge.error){background:#fff8ed;border-left-color:#a16b20}
+.decision-card #decision.error{color:#855817}
+.decision-card #decision-help{font-size:14px;color:#2d4353;line-height:1.8;border:0;padding:0;margin:12px 0 8px}
+.decision-card #reason{font:10px/1.7 ui-monospace,monospace;color:#5c6c78;overflow-wrap:anywhere;margin:0}
+.result-area .proposal-card{background:#20364a;color:#eaf0f5;border-color:#20364a;padding:14px 20px}
+.proposal-card .eyebrow{color:#a9bccb;font-size:9px;margin-bottom:5px}
+.proposal-card #tool-summary{font-size:16px;font-weight:600;overflow-wrap:anywhere}
+.proposal-card details{margin-top:9px}.proposal-card summary{color:#bacbd6;font-size:11px;cursor:pointer;width:fit-content}
+.proposal-card #tool-call{color:#d2e9e1;font-size:12px;margin:10px 0 0}
+.answer-card{padding:18px 22px}.answer-card h3{font-size:14px}#answer{font-size:14px;margin:12px 0 16px}
+.trace{color:#5d6e7c}.trace code{font-size:10px}#usage{font-size:10px}
+.cost-note{border-top:1px solid #e5eaef;padding-top:12px;color:#5f7180}
+.boundary{background:transparent;border-left:2px solid #aac5bd;padding:3px 0 3px 11px;border-radius:0}
+.boundary p{font-size:11px}.presets button{font-size:12px}.composer textarea{font-size:14px}
+@media(max-width:660px){.intro h1{font-size:26px}.result-area .result-card{padding:18px}.decision-card #decision{font-size:30px}.decision-card #decision-help{font-size:14px}.answer-card{padding:18px}}

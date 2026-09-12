@@ -1,5 +1,7 @@
 "use strict";
 const $ = (id) => document.getElementById(id);
+const setText = window.gatewayI18n.text;
+const t = window.gatewayI18n.translate;
 let user = null, busy = false, epoch = 0, auditRows = [];
 let editingAccount = false;
 const controllers = new Set();
@@ -7,7 +9,7 @@ const channel = typeof BroadcastChannel === "function" ? new BroadcastChannel("a
 const roleNames = {student: "学生", advisor: "导师", admin: "管理员"};
 const requestIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function notice(text, tone = "") { $("notice").textContent = text; $("notice").dataset.tone = tone; }
+function notice(text, tone = "") { setText("notice", text); $("notice").dataset.tone = tone; }
 function controls() {
   document.querySelectorAll("button, input, textarea").forEach((el) => { el.disabled = busy; });
   $("send-button").disabled = busy || !user || editingAccount;
@@ -16,30 +18,32 @@ function controls() {
   $("cancel-switch").hidden = !user || !editingAccount;
   $("logout-button").hidden = !user || editingAccount;
   $("demo-accounts").hidden = Boolean(user) && !editingAccount;
-  $("login-button").textContent = user ? "确认切换账户" : "登录工作台";
-  $("login-hint").textContent = user ? "切换成功前，当前身份保持不变。" : "使用虚构演示账户进入工作台。";
+  setText("login-button", user ? "确认切换账户" : "登录工作台");
+  setText("login-hint", user ? "切换成功前，当前身份保持不变。" : "使用虚构演示账户进入工作台。");
   $("logout-button").disabled = busy || !user;
   $("copy-request-id").disabled = busy || !user || !requestIdPattern.test($("request-id").textContent);
-  $("send-button").textContent = busy ? "处理中…" : "发送请求 →";
+  setText("send-button", busy ? "处理中…" : "发送请求 →");
   document.querySelector("main").setAttribute("aria-busy", String(busy));
 }
 function clearResults() {
-  $("tool-call").textContent = "等待工具提议";
-  $("decision").textContent = "待验证"; $("decision").className = "badge neutral";
-  $("reason").textContent = "允许或拒绝由网关返回，页面不决定权限。";
-  $("decision-help").textContent = "发送后请同时核对左侧工具名称和目标编号。";
-  $("copy-status").textContent = "";
-  $("answer").textContent = "发送请求后，在这里查看材料列表、正文或拒绝说明。";
-  $("request-id").textContent = "—"; $("usage").textContent = "模型用量：—";
-  $("http-status").textContent = "尚未发送"; $("result-actor").textContent = "仅显示最近一次结果";
+  setText("tool-call", "等待工具提议");
+  setText("tool-summary", "等待工具提议");
+  $("tool-details").open = false;
+  setText("decision", "待验证"); $("decision").className = "badge neutral";
+  setText("reason", "允许或拒绝由网关返回，页面不决定权限。");
+  setText("decision-help", "发送后请核对实际工具名称和目标编号。");
+  setText("copy-status", "");
+  setText("answer", "发送请求后，在这里查看材料列表、正文或拒绝说明。");
+  setText("request-id", "—", false); setText("usage", "模型用量：—");
+  setText("http-status", "尚未发送"); setText("result-actor", "仅显示最近一次结果");
   auditRows = []; $("audit-rows").replaceChildren(); $("audit-filter").value = "";
-  $("audit-note").textContent = "点击后加载；筛选仅针对最新 20 条，不搜索全部历史。";
+  setText("audit-note", "点击后加载；筛选仅针对最新 20 条，不搜索全部历史。");
 }
 function setUser(next) {
   if (user?.id !== next?.id || user?.role !== next?.role) { clearResults(); editingAccount = false; $("username").value = ""; $("password").value = ""; }
   user = next;
-  $("identity").textContent = user ? user.username : "未登录";
-  $("role").textContent = user ? `${roleNames[user.role] || user.role} · 用户 ${user.id}` : "身份以服务器端会话为准";
+  setText("identity", user ? user.username : "未登录", !user);
+  setText("role", user ? `${roleNames[user.role] || user.role} · 用户 ${user.id}` : "身份以服务器端会话为准");
   $("audit-panel").hidden = user?.role !== "admin";
   controls();
 }
@@ -76,7 +80,7 @@ async function currentUser(ticket) {
 }
 function invalidate() {
   ++epoch; controllers.forEach((controller) => controller.abort());
-  busy = false; clearResults(); $("password").value = ""; $("message").value = ""; $("char-count").textContent = "0";
+  busy = false; clearResults(); $("password").value = ""; $("message").value = ""; setText("char-count", "0");
   setUser(null);
 }
 function signalSessionChange() { channel?.postMessage("changed"); }
@@ -99,9 +103,9 @@ $("copy-request-id").addEventListener("click", () => {
     try {
       if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
       await navigator.clipboard.writeText(id);
-      if (ticket === epoch) $("copy-status").textContent = "已复制请求编号，可切换管理员后粘贴到日志筛选框；仅筛选已加载的最新 20 条。";
+      if (ticket === epoch) setText("copy-status", "已复制请求编号，可切换管理员后粘贴到日志筛选框；仅筛选已加载的最新 20 条。");
     } catch {
-      if (ticket === epoch) $("copy-status").textContent = "自动复制不可用，请选中上方请求编号手动复制。";
+      if (ticket === epoch) setText("copy-status", "自动复制不可用，请选中上方请求编号手动复制。");
     }
   });
 });
@@ -117,7 +121,7 @@ $("login-form").addEventListener("submit", (event) => {
     if (ticket !== epoch) return;
     if (response.code === 200) {
       editingAccount = false; $("username").value = "";
-      setUser(response.data); $("message").value = ""; $("char-count").textContent = "0";
+      setUser(response.data); $("message").value = ""; setText("char-count", "0");
       signalSessionChange(); notice("登录成功。示例只填入文字，点击发送才会发出请求。", "ok");
     } else {
       await currentUser(ticket);
@@ -134,18 +138,18 @@ $("logout-button").addEventListener("click", () => run(async (ticket) => {
   clearResults(); const response = await request("/auth/logout", {});
   if (ticket !== epoch) return;
   if (response.code !== 200) throw new Error("退出未确认，请重试退出操作。");
-  setUser(null); $("message").value = ""; $("char-count").textContent = "0";
+  setUser(null); $("message").value = ""; setText("char-count", "0");
   signalSessionChange(); notice("已退出，页面中的上次结果已清除。");
 }));
 document.querySelectorAll("[data-prompt]").forEach((button) => button.addEventListener("click", () => {
-  $("message").value = button.dataset.prompt; $("message").dispatchEvent(new Event("input")); $("message").focus();
+  $("message").value = window.gatewayI18n.language === "en" ? button.dataset.promptEn : button.dataset.prompt; $("message").dispatchEvent(new Event("input")); $("message").focus();
 }));
-$("message").addEventListener("input", () => { $("char-count").textContent = String($("message").value.length); });
+$("message").addEventListener("input", () => { setText("char-count", String($("message").value.length)); });
 function showUsage(usage, mode) {
   const n = (value) => Number.isSafeInteger(value) && value >= 0 ? String(value) : "—";
-  $("usage").textContent = usage
+  setText("usage", usage
     ? `Tokens 输入 ${n(usage.prompt_tokens)} / 输出 ${n(usage.completion_tokens)} / 合计 ${n(usage.total_tokens)}`
-    : mode === "mock" ? "本地模拟：不消耗模型 tokens" : "模型用量：未提供（不代表免费）";
+    : mode === "mock" ? "本地模拟：不消耗模型 tokens" : "模型用量：未提供（不代表免费）");
 }
 $("chat-form").addEventListener("submit", (event) => {
   event.preventDefault(); const message = $("message").value.trim();
@@ -159,41 +163,46 @@ $("chat-form").addEventListener("submit", (event) => {
     if (ticket !== epoch) return;
     if (response.code === 401) { setUser(null); notice("会话已失效，请重新登录。", "error"); return; }
     const data = response.data;
-    $("http-status").textContent = `HTTP ${response.code}`;
-    $("result-actor").textContent = `${actor.username} · ${roleNames[actor.role] || actor.role}`;
-    $("request-id").textContent = data.request_id || response.id || "—";
+    setText("http-status", `HTTP ${response.code}`);
+    setText("result-actor", `${actor.username} · ${roleNames[actor.role] || actor.role}`);
+    setText("request-id", data.request_id || response.id || "—", false);
     showUsage(data.usage, data.mode);
     if (response.code === 429 && data.reason_code === "AI_RATE_LIMIT") {
-      $("decision").textContent = "请求限流"; $("decision").className = "badge neutral";
-      $("reason").textContent = "AI_RATE_LIMIT";
-      $("decision-help").textContent = "这是调用频率限制，不是目标材料的权限决定。";
-      $("answer").textContent = "发送过于频繁，本次未调用模型，也未执行工具。";
-      $("usage").textContent = "本次限流拒绝：未调用模型";
+      setText("decision", "请求限流"); $("decision").className = "badge neutral";
+      setText("reason", "AI_RATE_LIMIT");
+      setText("decision-help", "这是调用频率限制，不是目标材料的权限决定。");
+      setText("answer", "发送过于频繁，本次未调用模型，也未执行工具。");
+      setText("usage", "本次限流拒绝：未调用模型");
       const seconds = Number.isSafeInteger(data.retry_after_seconds) && data.retry_after_seconds > 0 ? data.retry_after_seconds : 60;
       notice(`请至少等待 ${seconds} 秒后再手动发送；页面不会自动重试。这不是材料权限拒绝。`, "error");
       return;
     }
-    $("tool-call").textContent = data.tool_call ? JSON.stringify(data.tool_call, null, 2) : "没有可展示的工具提议";
+    setText("tool-call", data.tool_call ? JSON.stringify(data.tool_call, null, 2) : "没有可展示的工具提议", !data.tool_call);
+    const proposal = data.tool_call;
+    setText("tool-summary", proposal?.tool_name === "read_application"
+      ? `读取材料 · ${Number.isSafeInteger(proposal.arguments?.application_id) ? proposal.arguments.application_id : "编号待核对"}`
+      : proposal?.tool_name === "list_applications" ? "列出可访问的材料"
+      : proposal ? "其他工具提议 · 请展开核对" : "本次没有工具提议");
     const gateway = data.gateway_result;
     if (gateway && (gateway.decision === "ALLOW" || gateway.decision === "DENY")) {
-      $("decision").textContent = gateway.decision; $("decision").className = `badge ${gateway.decision === "ALLOW" ? "allow" : "deny"}`;
-      $("reason").textContent = gateway.reason_code;
+      setText("decision", gateway.decision); $("decision").className = `badge ${gateway.decision === "ALLOW" ? "allow" : "deny"}`;
+      setText("reason", gateway.reason_code);
       const explanations = {
-        AUTHORIZED: data.tool_call?.tool_name === "list_applications" ? "允许列出当前账户可见的材料，不代表获准读取所有正文。" : "仅允许上述工具和目标；其他材料仍需单独检查权限。",
+        AUTHORIZED: data.tool_call?.tool_name === "list_applications" ? "允许列出当前账户可见的材料，不代表获准读取所有正文。" : "仅允许本次工具和目标；其他材料仍需单独检查权限。",
         APPLICATION_NOT_FOUND_OR_FORBIDDEN: "目标不存在或当前账户无权访问，系统不区分这两种情况，也不交付正文。",
         INVALID_ARGUMENTS: "工具参数不符合要求，调用被拒绝；不能把它当成资源权限规则已通过验证。",
         TOOL_NOT_ALLOWED: "工具不在允许清单中，调用被拒绝。",
         NOT_AUTHENTICATED: "登录身份无效，调用被拒绝。",
       };
-      $("decision-help").textContent = explanations[gateway.reason_code] || "请结合实际工具、目标和原始原因码解读本次决定。";
-      $("answer").textContent = typeof data.answer === "string" ? data.answer : "未提供回答";
+      setText("decision-help", explanations[gateway.reason_code] || "请结合实际工具、目标和原始原因码解读本次决定。");
+      setText("answer", typeof data.answer === "string" ? data.answer : "未提供回答", gateway.decision === "DENY");
       notice(gateway.decision === "DENY" ? "网关拒绝：未交付目标材料。请结合实际工具和目标编号解读。" : "网关允许了上述工具调用；不代表允许访问所有材料。", gateway.decision === "DENY" ? "error" : "ok");
     } else {
-      $("decision").textContent = response.code >= 400 ? "处理失败" : "无授权决定";
+      setText("decision", response.code >= 400 ? "处理失败" : "无授权决定");
       $("decision").className = `badge ${response.code >= 400 ? "error" : "neutral"}`;
-      $("reason").textContent = data.reason_code || data.status || "未获得网关结果";
-      $("decision-help").textContent = response.code >= 400 ? "没有可展示的网关决定，不能作为越权被网关拒绝的证据。" : "没有工具调用，不计作网关拦截越权读取。";
-      $("answer").textContent = data.answer || data.detail || "没有可交付的结果。";
+      setText("reason", data.reason_code || data.status || "未获得网关结果");
+      setText("decision-help", response.code >= 400 ? "没有可展示的网关决定，不能作为越权被网关拒绝的证据。" : "没有工具调用，不计作网关拦截越权读取。");
+      setText("answer", data.answer || data.detail || "没有可交付的结果。", data.status === "needs_clarification");
       notice(response.code >= 400 ? "这不是网关权限拒绝的证据。记录错误码，先不要连续重试。" : "本次没有工具调用，不算网关拦截了越权读取。", response.code >= 400 ? "error" : "");
     }
   });
@@ -203,13 +212,17 @@ function renderAudit() {
   const rows = auditRows.filter((row) => !query || row.request_id === query);
   for (const row of rows) {
     const tr = document.createElement("tr");
-    const fields = [`${row.timestamp}\n${row.request_id}`, `${row.user_id ?? "—"} · ${row.role ?? "未知"}`,
-      `${row.tool_name}\n材料 ${row.application_id ?? "—"}`, `${row.decision}\n${row.execution_status}`, row.reason_code];
+    const fields = [`${row.timestamp}\n${row.request_id}`, `${row.user_id ?? "—"} · ${row.role ?? t("未知")}`,
+      `${row.tool_name}\n${t("材料")} ${row.application_id ?? "—"}`, `${row.decision}\n${row.execution_status}`, row.reason_code];
     fields.forEach((value) => { const td = document.createElement("td"); td.textContent = value; tr.append(td); });
     $("audit-rows").append(tr);
   }
-  $("audit-note").textContent = `显示 ${rows.length} / ${auditRows.length} 条。时间采用日志原始 UTC 时区；编号筛选仅针对本页。`;
+  setText("audit-note", `显示 ${rows.length} / ${auditRows.length} 条。时间采用日志原始 UTC 时区；编号筛选仅针对本页。`);
 }
+document.addEventListener("gateway-language-change", () => {
+  controls();
+  if (auditRows.length) renderAudit();
+});
 $("audit-filter").addEventListener("input", renderAudit);
 $("audit-button").addEventListener("click", () => run(async (ticket) => {
   auditRows = []; $("audit-rows").replaceChildren();
@@ -229,14 +242,15 @@ document.addEventListener("visibilitychange", () => {
   else run(async (ticket) => { await currentUser(ticket); if (ticket === epoch) notice("已重新确认登录状态，旧结果已清除。"); });
 });
 window.addEventListener("pageshow", (event) => { if (event.persisted) { invalidate(); run(currentUser); } });
+clearResults();
 run(async (ticket) => {
   const config = await request("/ui/config");
   if (ticket !== epoch) return;
   if (config.code === 200) {
-    $("mode").textContent = config.data.mode === "deepseek" ? "DeepSeek · 真实模型" : "Mock · 固定规则";
-    $("limits").textContent = config.data.mode === "deepseek" ? "每用户 60 秒 ≤5 次 · 每次启动 ≤20 次尝试 · 输出 ≤128 tokens" : "本地模拟 · 不消耗模型 tokens";
-    $("cost-note").textContent = config.data.mode === "deepseek" ? "点击发送后，消息可能发送给 DeepSeek；无关问题也可能消耗额度。不自动重试，请勿输入真实敏感信息。" : "当前为固定规则模拟，无外部模型调用，不消耗模型额度。";
-    $("version").textContent = config.data.version;
+    setText("mode", config.data.mode === "deepseek" ? "DeepSeek · 真实模型" : "Mock · 固定规则");
+    setText("limits", config.data.mode === "deepseek" ? "每用户 60 秒 ≤5 次 · 每次启动 ≤20 次尝试 · 输出 ≤128 tokens" : "本地模拟 · 不消耗模型 tokens");
+    setText("cost-note", config.data.mode === "deepseek" ? "点击发送后，消息可能发送给 DeepSeek；无关问题也可能消耗额度。不自动重试，请勿输入真实敏感信息。" : "当前为固定规则模拟，无外部模型调用，不消耗模型额度。");
+    setText("version", config.data.version, false);
   }
   const actor = await currentUser(ticket);
   if (ticket === epoch) notice(actor ? "已恢复登录身份。点击示例不会自动发送。" : "请先登录，再发送访问请求。");

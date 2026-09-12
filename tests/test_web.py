@@ -10,7 +10,7 @@ def client(tmp_path):
         yield client
 
 
-@pytest.mark.parametrize("path", ["/", "/static/app.js", "/static/style.css", "/static/layout.css"])
+@pytest.mark.parametrize("path", ["/", "/static/app.js", "/static/i18n.js", "/static/style.css", "/static/layout.css"])
 def test_public_assets_have_browser_protection(client, path):
     response = client.get(path)
     assert response.status_code == 200

@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 PROJECT = Path(__file__).resolve().parents[1]
-ROOT_FILES = ("README.md", "requirements.txt", "requirements-dev.txt", ".gitignore")
+ROOT_FILES = ("README.md", "README.en.md", "requirements.txt", "requirements-dev.txt", ".gitignore")
 ROOT_DIRS = ("app", "tests", "scripts", "docs")
 EXTENSIONS = {".py", ".ps1", ".js", ".cjs", ".css", ".html", ".md", ".svg", ".png"}
 RULES = {
@@ -30,7 +30,7 @@ def candidates(root):
             problems.append({"path": relative, "rule": "linked_path"})
             return
         if path.is_dir():
-            if path.name in {"__pycache__", ".pytest_cache", "node_modules", ".secrets", ".acl-backups", "data", ".git"}:
+            if path.name in {"__pycache__", ".pytest_cache", "node_modules", ".secrets", ".acl-backups", "data", ".git"} or relative == "docs/private-notes":
                 return
             for child in sorted(path.iterdir()):
                 visit(child)
